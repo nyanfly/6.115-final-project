@@ -1,0 +1,7 @@
+C:\Users\Willie\Downloads\psoc_ugfx_demo\6.115-final-project.cydsn\6.115-final-project.cyprj|41dda0c5-3059-4916-a1d8-4c0a15a88f50
+C:\Program Files (x86)\Cypress\PSoC Creator\4.0\PSoC Creator\psoc\content\default\CyAnnotationLibrary\CyAnnotationLibrary.cylib\CyAnnotationLibrary.cyprj|14b7f0f0-1a65-4221-82ed-cf5dd9e0a7b3
+C:\Program Files (x86)\Cypress\PSoC Creator\4.0\PSoC Creator\psoc\content\default\CyReferenceLibrary\CyReferenceLibrary.cylib\CyReferenceLibrary.cyprj|c0ab7754-ffbf-4235-b69c-e9f9596967d0
+C:\Program Files (x86)\Cypress\PSoC Creator\4.0\PSoC Creator\psoc\content\cycomponentlibraryupdates\CyComponentLibraryUpdates.cylib\CyComponentLibraryUpdates.cyprj|1abfff87-2113-4d01-8ba4-27070e648efa
+C:\Program Files (x86)\Cypress\PSoC Creator\4.0\PSoC Creator\psoc\content\cycomponentlibrary\CyComponentLibrary.cylib\CyComponentLibrary.cyprj|61565126-cd47-4c56-adf7-ebdb4a025dfe
+C:\Program Files (x86)\Cypress\PSoC Creator\4.0\PSoC Creator\psoc\content\cyprimitives\CyPrimitives.cylib\CyPrimitives.cyprj|07cbce30-a819-4559-8c2c-87dc512cabd2
+C:\Users\Willie\Downloads\psoc_ugfx_demo\HelloWorld_Blinky01.cydsn\HelloWorld_Blinky01.cyprj|2257d6c0-16d5-4537-96ea-ab153709da15
