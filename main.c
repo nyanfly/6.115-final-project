@@ -1,9 +1,8 @@
 #include <device.h>
 #include "gfx.h"
+#include "cad_widget.h"
 
-void cadAreaRendering(GWidgetObject* gw, void* param) {
-    
-}
+#define cadWidgetGCreate(so, pI) cadWidgetGCreate(GDISP, so, pI)    // helper alias
 
 int main()
 {
@@ -12,6 +11,7 @@ int main()
     gdispImage image;
     GDisplay *display;
     GWindowObject *windowObject = NULL;
+    CadWidgetObject *widgetObject = NULL;
     GHandle ghandle;
     GListener glistener;
     GEvent *event;
@@ -46,13 +46,36 @@ int main()
         .y = 1,
         .width = swidth,
         .height = sheight,
-        .show = TRUE
+        .show = TRUE,
     };
 
-    ghandle = gwinGWindowCreate(display, windowObject, &windowInit); 
+   // ghandle = gwinGWindowCreate(display, windowObject, &windowInit); 
+    // create a cadWidget
+    GWidgetInit cadWidgetInit = {
+        windowInit,
+        "",
+        NULL,
+        NULL,
+        NULL,
+    };
+        
+    cadWidgetGCreate(widgetObject, &cadWidgetInit);
     
     geventListenerInit(&glistener);
     geventAttachSource(&glistener, ginputGetMouse(0), GLISTEN_TOUCHMETA | GLISTEN_TOUCHDOWNMOVES);
+    
+    unsigned *data = malloc(sizeof(unsigned) * 2);
+    data[0] = 50;
+    data[1] = 50;
+    
+    struct Shape_t shape = {
+        .type = RECTANGLE,
+        .data = data,
+        .x = 10,
+        .y = 10,
+    };
+
+    addShape(shape);
     
     int a = 0;
     for (;;) {
