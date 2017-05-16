@@ -9,7 +9,7 @@
  *
  * ========================================
 */
-
+#include <device.h>
 #include "gfx.h"
 #include "src/gwin/gwin_class.h"
 
@@ -21,7 +21,7 @@
 static struct Shape_t cadQueue[MAX_SHAPES];
 static unsigned cadQueueSize = 0;
 
-static const gwidgetVMT mywidgetVMT = {
+static const gwidgetVMT cadWidgetVMT = {
     {
         "CadWidget",                // The classname
         sizeof(CadWidgetObject),     // The object size
@@ -60,6 +60,7 @@ static const gwidgetVMT mywidgetVMT = {
         },
     #endif
 };
+
 void addShape(struct Shape_t shape) {
     cadQueue[cadQueueSize] = shape;
     cadQueueSize++;
@@ -68,14 +69,13 @@ void addShape(struct Shape_t shape) {
 void cadWidgetRenderingFunction(GWidgetObject* gw, void* param) {
     unsigned i;
     for (i = 0; i < cadQueueSize; i++) {
-        drawShape(&gw->g, &cadQueue[i]);
+        drawCadShape(&gw->g, &cadQueue[i]);
     }
 }
 
-
 GHandle cadWidgetGCreate(GDisplay* g, CadWidgetObject* wo, GWidgetInit* pInit) {
     // Create the base class (the actual widget)
-    if (!(wo = (CadWidgetObject*) _gwidgetCreate(g, &wo->w, pInit, &mywidgetVMT))) {
+    if (!(wo = (CadWidgetObject*) _gwidgetCreate(g, &wo->w, pInit, &cadWidgetVMT))) {
         return 0;
     }
 
