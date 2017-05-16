@@ -19,6 +19,8 @@ enum State {
     DRAW_RECTANGLE,
 } state;
 
+const enum State nextState[] = {DRAW_RECTANGLE, DRAW_CIRCLE};
+
 int main()
 {
     font_t font1, font2;
@@ -72,7 +74,6 @@ int main()
     state = DRAW_CIRCLE;
 
     for (;;) {
-        shouldRedraw = FALSE;
         // wait for event
     	event = geventEventWait(&glistener, TIME_INFINITE);
 		switch(event->type) {
@@ -87,40 +88,49 @@ int main()
 
                     case GINPUT_MOUSE_BTN_LEFT | GMETA_MOUSE_DOWN:
                         touchPressed = TRUE;
-                        switch (state) {
-                            case DRAW_RECTANGLE: {
-                                struct Shape_t *shape = malloc(sizeof(struct Shape_t));
-                                shape->x = mouseEvent->x;
-                                shape->y = mouseEvent->y;
-                                shape->type = RECTANGLE;
-                                shape->data = malloc(sizeof(coord_t) * 2);
-                                data = shape->data;
-                                data[0] = 1;
-                                data[1] = 1;
-                                pushShape(shape);
-                            }
-                            break;
+                        if (mouseEvent->x >= 50) {
+                            shouldRedraw = TRUE;
+                            switch (state) {
+                                case DRAW_RECTANGLE: {
+                                    struct Shape_t *shape = malloc(sizeof(struct Shape_t));
+                                    shape->x = mouseEvent->x;
+                                    shape->y = mouseEvent->y;
+                                    shape->type = RECTANGLE;
+                                    shape->data = malloc(sizeof(coord_t) * 2);
+                                    data = shape->data;
+                                    data[0] = 1;
+                                    data[1] = 1;
+                                    pushShape(shape);
+                                }
+                                break;
 
-                            case DRAW_CIRCLE: {
-                                struct Shape_t *shape = malloc(sizeof(struct Shape_t));
-                                shape->x = mouseEvent->x;
-                                shape->y = mouseEvent->y;
-                                shape->type = CIRCLE;
-                                shape->data = malloc(sizeof(coord_t) * 1);
-                                data = shape->data;
-                                data[0] = 1;
-                                pushShape(shape);
-                            }
-                            break;
+                                case DRAW_CIRCLE: {
+                                    struct Shape_t *shape = malloc(sizeof(struct Shape_t));
+                                    shape->x = mouseEvent->x;
+                                    shape->y = mouseEvent->y;
+                                    shape->type = CIRCLE;
+                                    shape->data = malloc(sizeof(coord_t) * 1);
+                                    data = shape->data;
+                                    data[0] = 1;
+                                    pushShape(shape);
+                                }
+                                break;
 
-                            default:
-                            break;
+                                default:
+                                break;
+                            }
+                        } else {    // advance state
+                            state = nextState[state % (sizeof(nextState) / sizeof(nextState[0]))];
                         }
                     break;
                         
-                    case GMETA_MOUSE_UP:
+                    case GMETA_MOUSE_UP:    // only redraw on mouse up
                         touchPressed = FALSE;
-                        shouldRedraw = TRUE;
+                        if (shouldRedraw) {
+                            gdispClear(White);  // fill to white
+                            drawShapes();
+                        }
+                        shouldRedraw = FALSE;
                     break;
                         
                     default:    // just assume mouse movement
@@ -159,12 +169,7 @@ int main()
 				break;
 		}
 
-        if (shouldRedraw) {
-            gdispClear(White);  // fill to white
-            drawShapes();
-        } else {
-            drawShapesFast();
-        }
+        drawShapesFast();
     }
 
     return 0;
