@@ -134,7 +134,7 @@ int main()
                     case GMETA_MOUSE_UP:    // only redraw on mouse up
                         touchPressed = FALSE;
                         if (shouldRedraw) {
-
+                            redraw();
                         }
 
                         shouldRedraw = FALSE;
