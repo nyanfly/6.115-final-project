@@ -9,16 +9,16 @@
  *
  * ========================================
 */
-
+#include <device.h>
 #include "shape.h"
 
- void drawCadShape(GHandle gh, struct Shape_t *s) {
+ void drawShape(GDisplay *d, struct Shape_t *s) {
+    // TODO is data always of coord_t?
     switch (s->type) {
+        coord_t *data;
         case RECTANGLE:;
-        coord_t *coords;
-       // coords = (coord_t *) s->data;
-      //  gwinDrawBox(gh, s->x, s->y, coords[0], coords[1]);
-        gwinDrawBox(gh, s->x, s->y, 100, 100);
+        data = s->data;
+        gdispFillArea(s->x, s->y, data[0], data[1], Red);
         break;
         
         case CIRCLE:

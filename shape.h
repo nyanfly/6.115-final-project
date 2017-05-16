@@ -29,7 +29,7 @@ struct Shape_t {
     coord_t y;
 };
 
-void drawCadShape(GHandle gh, struct Shape_t *s);
+void drawShape(GDisplay *d, struct Shape_t *s);
 
 #endif  // SHAPE_H
 

@@ -1,8 +1,20 @@
 #include <device.h>
 #include "gfx.h"
-#include "cad_widget.h"
+//#include "cad_widget.h"
 
-#define cadWidgetGCreate(so, pI) cadWidgetGCreate(GDISP, so, pI)    // helper alias
+#include "shape.h"
+
+//#define cadWidgetGCreate(so, pI) cadWidgetGCreate(GDISP, so, pI)    // helper alias
+
+#define MAX_SHAPES 10
+
+static struct Shape_t* cadQueue[MAX_SHAPES];
+static unsigned cadQueueSize = 0;
+
+void pushShape(struct Shape_t *shape);
+void popShape();
+struct Shape_t* peekShape();
+void drawShapes();
 
 int main()
 {
@@ -11,7 +23,6 @@ int main()
     gdispImage image;
     GDisplay *display;
     GWindowObject *windowObject = NULL;
-    CadWidgetObject *widgetObject = NULL;
     GHandle ghandle;
     GListener glistener;
     GEvent *event;
@@ -37,29 +48,17 @@ int main()
     font2 = gdispOpenFont("DejaVuSans32_aa");
 
     // set default bg/fg colors
-    gwinSetDefaultColor(Black);
+    gwinSetDefaultColor(Gray);
     gwinSetDefaultBgColor(White);
     gwinSetDefaultFont(font1);
 
     GWindowInit windowInit = {
         .x = 0,
         .y = 1,
-        .width = swidth,
-        .height = sheight,
+        .width = 200,
+        .height = 200,
         .show = TRUE,
     };
-
-   // ghandle = gwinGWindowCreate(display, windowObject, &windowInit); 
-    // create a cadWidget
-    GWidgetInit cadWidgetInit = {
-        windowInit,
-        "",
-        NULL,
-        NULL,
-        NULL,
-    };
-        
-    cadWidgetGCreate(widgetObject, &cadWidgetInit);
     
     geventListenerInit(&glistener);
     geventAttachSource(&glistener, ginputGetMouse(0), GLISTEN_TOUCHMETA | GLISTEN_TOUCHDOWNMOVES);
@@ -67,7 +66,7 @@ int main()
     unsigned *data = malloc(sizeof(unsigned) * 2);
     data[0] = 50;
     data[1] = 50;
-    
+
     struct Shape_t shape = {
         .type = RECTANGLE,
         .data = data,
@@ -76,9 +75,12 @@ int main()
     };
 
     addShape(shape);
-    
+
     int a = 0;
+    bool_t shouldRedraw;  // should I redraw this frame?
+
     for (;;) {
+        shouldRedraw = FALSE;
         // wait for event
     	event = geventEventWait(&glistener, TIME_INFINITE);
 		switch(event->type) {
@@ -87,27 +89,84 @@ int main()
                 GEventMouse *mouseEvent;
                 mouseEvent = (GEventMouse*) event;
                 
-                LCD_Char_PrintDecUint16(mouseEvent->buttons);
+                //LCD_Char_PrintDecUint16(mouseEvent->buttons);
                 
                 // a touchscreen touch always shows up as LEFT button press
                 switch (mouseEvent->buttons) {
+                    coord_t *data; // shape data pointer
+
                     case GINPUT_MOUSE_BTN_LEFT | GMETA_MOUSE_DOWN:
                         touchPressed = TRUE;
+                        struct Shape_t *shape = malloc(sizeof(struct Shape_t));
+                        shape->x = mouseEvent->x;
+                        shape->y = mouseEvent->y;
+                        shape->type = RECTANGLE;
+                        shape->data = malloc(sizeof(coord_t) * 2);
+                        data = shape->data;
+                        data[0] = 1;
+                        data[1] = 1;
+                        pushShape(shape);
                     break;
-                    
-                    case GINPUT_MOUSE_BTN_LEFT | 0x1010:    // mouse movement (magic number?)
-                    break;
-                    
+                        
                     case GMETA_MOUSE_UP:
                         touchPressed = FALSE;
+                        shouldRedraw = TRUE;
                     break;
+                        
+                    default:    // just assume mouse movement
+                        if (mouseEvent->buttons == 128) break;  // init??
+                        struct Shape_t *currentShape = peekShape();
+                        data = shape->data;
+                        
+                        // just throw away negative values, because uGFX is too dumb to handle them
+                        if (mouseEvent->x - shape->x > 0 && mouseEvent->y - shape->y > 0) {
+                            data[0] = mouseEvent->x - shape->x;
+                            data[1] = mouseEvent->y - shape->y;
+                        }
+                        break;
                 }
                 break;
+
 			default:
 				break;
 		}
 
+        // FIXME incredibly inefficient :/
+        // redraw after event
+        if (shouldRedraw) {
+            gdispClear(White);  // fill to white
+        }
+
+        drawShapes();
     }
 
     return 0;
+}
+
+void pushShape(struct Shape_t *shape) {
+    cadQueue[cadQueueSize] = shape;
+    cadQueueSize++;
+}
+
+void popShape() {
+    if (cadQueueSize == 0) return;  // don't do anything for empty queue
+
+    if (cadQueue[cadQueueSize - 1]->data != NULL) {
+        free(cadQueue[cadQueueSize - 1]->data);
+    }
+
+    free(cadQueue[cadQueueSize - 1]);   // TODO fix memory management LOL
+    cadQueueSize--;
+}
+
+struct Shape_t* peekShape() {
+    if (cadQueueSize == 0) return NULL;
+    return cadQueue[cadQueueSize - 1];
+}
+
+void drawShapes() {
+    unsigned i;
+    for (i = 0; i < cadQueueSize; i++) {
+        drawShape(GDISP, cadQueue[i]);
+    }
 }
