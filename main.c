@@ -8,11 +8,15 @@
 static struct Shape_t* cadQueue[MAX_SHAPES];
 static unsigned cadQueueSize = 0;
 
+static font_t font;
+
 void pushShape(struct Shape_t *shape);
 void popShape();
 struct Shape_t* peekShape();
 void drawShapes();
 void drawShapesFast();
+void redraw();
+void drawMode();
 
 enum State {
     DRAW_CIRCLE,
@@ -20,10 +24,11 @@ enum State {
 } state;
 
 const enum State nextState[] = {DRAW_RECTANGLE, DRAW_CIRCLE};
+const char stateNames[] = {'R', 'C'};
 
 int main()
 {
-    font_t font1, font2;
+    //font_t font1, font2;
     coord_t swidth, sheight;
     gdispImage image;
     GDisplay *display;
@@ -49,13 +54,13 @@ int main()
     display = gdispGetDisplay(0);   // get default display
 
     // Prepare the resources
-    font1 = gdispOpenFont("DejaVuSans16_aa");
-    font2 = gdispOpenFont("DejaVuSans32_aa");
+    //font1 = gdispOpenFont("DejaVuSans16_aa");
+    font = gdispOpenFont("DejaVuSans32_aa");
 
     // set default bg/fg colors
     gwinSetDefaultColor(Gray);
     gwinSetDefaultBgColor(White);
-    gwinSetDefaultFont(font1);
+    gwinSetDefaultFont(font);
 
     GWindowInit windowInit = {
         .x = 0,
@@ -68,6 +73,8 @@ int main()
     geventListenerInit(&glistener);
     geventAttachSource(&glistener, ginputGetMouse(0), GLISTEN_TOUCHMETA | GLISTEN_TOUCHDOWNMOVES);
 
+    redraw();   // initial draw
+    
     int a = 0;
     bool_t shouldRedraw;  // should I redraw this frame?
     
@@ -123,13 +130,13 @@ int main()
                             state = nextState[state % (sizeof(nextState) / sizeof(nextState[0]))];
                         }
                     break;
-                        
+
                     case GMETA_MOUSE_UP:    // only redraw on mouse up
                         touchPressed = FALSE;
                         if (shouldRedraw) {
-                            gdispClear(White);  // fill to white
-                            drawShapes();
+
                         }
+
                         shouldRedraw = FALSE;
                     break;
                         
@@ -206,4 +213,15 @@ void drawShapes() {
 void drawShapesFast() { // only draw the currently edited shape
     if (cadQueueSize == 0) return;
     drawShapeFast(GDISP, cadQueue[cadQueueSize - 1]);
+}
+
+void redraw() {
+    gdispClear(White);  // fill to white
+    drawShapes();
+    drawMode();
+}
+
+void drawMode() {   // display current state
+    gdispDrawChar(10, 10, stateNames[state], font, Black);
+    gdispDrawBox(0, 0, 50, 50, Black);
 }
