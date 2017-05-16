@@ -1,10 +1,7 @@
 #include <device.h>
 #include "gfx.h"
-//#include "cad_widget.h"
 
 #include "shape.h"
-
-//#define cadWidgetGCreate(so, pI) cadWidgetGCreate(GDISP, so, pI)    // helper alias
 
 #define MAX_SHAPES 100
 
@@ -16,6 +13,11 @@ void popShape();
 struct Shape_t* peekShape();
 void drawShapes();
 void drawShapesFast();
+
+enum State {
+    DRAW_CIRCLE,
+    DRAW_RECTANGLE,
+} state;
 
 int main()
 {
@@ -63,22 +65,11 @@ int main()
     
     geventListenerInit(&glistener);
     geventAttachSource(&glistener, ginputGetMouse(0), GLISTEN_TOUCHMETA | GLISTEN_TOUCHDOWNMOVES);
-    
-    unsigned *data = malloc(sizeof(unsigned) * 2);
-    data[0] = 50;
-    data[1] = 50;
-
-    struct Shape_t shape = {
-        .type = RECTANGLE,
-        .data = data,
-        .x = 10,
-        .y = 10,
-    };
-
-    addShape(shape);
 
     int a = 0;
     bool_t shouldRedraw;  // should I redraw this frame?
+    
+    state = DRAW_CIRCLE;
 
     for (;;) {
         shouldRedraw = FALSE;
@@ -89,24 +80,42 @@ int main()
                 a = 0;
                 GEventMouse *mouseEvent;
                 mouseEvent = (GEventMouse*) event;
-                
-                //LCD_Char_PrintDecUint16(mouseEvent->buttons);
-                
+
                 // a touchscreen touch always shows up as LEFT button press
                 switch (mouseEvent->buttons) {
                     coord_t *data; // shape data pointer
 
                     case GINPUT_MOUSE_BTN_LEFT | GMETA_MOUSE_DOWN:
                         touchPressed = TRUE;
-                        struct Shape_t *shape = malloc(sizeof(struct Shape_t));
-                        shape->x = mouseEvent->x;
-                        shape->y = mouseEvent->y;
-                        shape->type = RECTANGLE;
-                        shape->data = malloc(sizeof(coord_t) * 2);
-                        data = shape->data;
-                        data[0] = 1;
-                        data[1] = 1;
-                        pushShape(shape);
+                        switch (state) {
+                            case DRAW_RECTANGLE: {
+                                struct Shape_t *shape = malloc(sizeof(struct Shape_t));
+                                shape->x = mouseEvent->x;
+                                shape->y = mouseEvent->y;
+                                shape->type = RECTANGLE;
+                                shape->data = malloc(sizeof(coord_t) * 2);
+                                data = shape->data;
+                                data[0] = 1;
+                                data[1] = 1;
+                                pushShape(shape);
+                            }
+                            break;
+
+                            case DRAW_CIRCLE: {
+                                struct Shape_t *shape = malloc(sizeof(struct Shape_t));
+                                shape->x = mouseEvent->x;
+                                shape->y = mouseEvent->y;
+                                shape->type = CIRCLE;
+                                shape->data = malloc(sizeof(coord_t) * 1);
+                                data = shape->data;
+                                data[0] = 1;
+                                pushShape(shape);
+                            }
+                            break;
+
+                            default:
+                            break;
+                        }
                     break;
                         
                     case GMETA_MOUSE_UP:
@@ -116,11 +125,31 @@ int main()
                         
                     default:    // just assume mouse movement
                         if (mouseEvent->buttons == 128) break;  // init??
-                        struct Shape_t *currentShape = peekShape();
-                        data = shape->data;
+                        
+                        switch (state) {
+                            case DRAW_RECTANGLE: {
+                                struct Shape_t *currentShape = peekShape();
+                                data = currentShape->data;
 
-                        data[0] = mouseEvent->x - shape->x;
-                        data[1] = mouseEvent->y - shape->y;
+                                data[0] = mouseEvent->x - currentShape->x;
+                                data[1] = mouseEvent->y - currentShape->y;
+                            }
+                            break;
+                            
+                            case DRAW_CIRCLE: {
+                                struct Shape_t *currentShape = peekShape();
+                                data = currentShape->data;
+
+                                double distance = (mouseEvent->x - currentShape->x) * (mouseEvent->x - currentShape->x) + 
+                                    (mouseEvent->y - currentShape->y) * (mouseEvent->y - currentShape->y);
+                                data[0] = (coord_t) sqrt(distance);
+                            }
+                            break;
+                            
+                            default:
+                            break;
+                            
+                        }
 
                         break;
                 }

@@ -21,15 +21,18 @@
 
  void drawShape(GDisplay *d, struct Shape_t *s) {
     // TODO is data always of coord_t?
+    coord_t x, y;
+
+    x = s->x;
+    y = s->y;
+
     switch (s->type) {
         coord_t *data;
         case RECTANGLE: {
-            coord_t x, y, width, height;
+            coord_t width, height;
 
             data = s->data;
-            
-            x = s->x;
-            y = s->y;
+
             width = data[0];
             height = data[1];
 
@@ -48,8 +51,16 @@
         }
         break;
         
-        case CIRCLE:
-       // gwinDrawCircle(gh, s->x, s->y, s->data[2]);
+        case CIRCLE: {
+            coord_t radius;
+
+            data = s->data;
+
+            radius = data[0];
+
+            gdispFillCircle(x, y, radius, SKETCH_COLOR);
+            gdispDrawCircle(x, y, radius, SKETCH_OUTLINE_COLOR);
+        }
         break;
         
      //   case POLYGON:
@@ -63,15 +74,18 @@
 
  void drawShapeFast(GDisplay *d, struct Shape_t *s) {
     // TODO is data always of coord_t?
+    coord_t x, y;
+
+    x = s->x;
+    y = s->y;
+
     switch (s->type) {
         coord_t *data;
         case RECTANGLE: {
-            coord_t x, y, width, height;
+            coord_t width, height;
 
             data = s->data;
-            
-            x = s->x;
-            y = s->y;
+
             width = data[0];
             height = data[1];
 
@@ -89,8 +103,14 @@
         }
         break;
         
-        case CIRCLE:
-       // gwinDrawCircle(gh, s->x, s->y, s->data[2]);
+        case CIRCLE: {
+            coord_t radius;
+
+            data = s->data;
+            radius = data[0];
+
+            gdispDrawCircle(x, y, radius, EDITING_COLOR);
+        }
         break;
         
      //   case POLYGON:
