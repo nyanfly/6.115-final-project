@@ -12,6 +12,13 @@
 #include <device.h>
 #include "shape.h"
 
+// color when shape is being edited
+#define EDITING_COLOR Gray
+// color after shape is placed onto sketch
+#define SKETCH_COLOR Black
+// color for outlining different shapes
+#define SKETCH_OUTLINE_COLOR Gray
+
  void drawShape(GDisplay *d, struct Shape_t *s) {
     // TODO is data always of coord_t?
     switch (s->type) {
@@ -36,7 +43,8 @@
                 height = -height;
             }
 
-            gdispFillArea(x, y, width, height, Red);
+            gdispFillArea(x, y, width, height, SKETCH_COLOR);
+            gdispDrawBox(x, y, width, height, SKETCH_OUTLINE_COLOR);
         }
         break;
         
@@ -77,7 +85,7 @@
                 height = -height;
             }
 
-            gdispDrawBox(x, y, width, height, Red);
+            gdispDrawBox(x, y, width, height, EDITING_COLOR);
         }
         break;
         

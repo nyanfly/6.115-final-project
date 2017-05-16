@@ -130,14 +130,12 @@ int main()
 				break;
 		}
 
-        // FIXME incredibly inefficient :/
-        // redraw after event
         if (shouldRedraw) {
             gdispClear(White);  // fill to white
             drawShapes();
+        } else {
+            drawShapesFast();
         }
-
-        drawShapesFast();
     }
 
     return 0;
@@ -171,9 +169,7 @@ void drawShapes() {
     }
 }
 
-void drawShapesFast() {
-    unsigned i;
-    for (i = 0; i < cadQueueSize; i++) {
-        drawShapeFast(GDISP, cadQueue[i]);
-    }
+void drawShapesFast() { // only draw the currently edited shape
+    if (cadQueueSize == 0) return;
+    drawShapeFast(GDISP, cadQueue[cadQueueSize - 1]);
 }
