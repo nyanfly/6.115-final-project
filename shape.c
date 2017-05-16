@@ -61,7 +61,23 @@
             coord_t x, y, width, height;
 
             data = s->data;
-            gdispFillArea(s->x, s->y, data[0], data[1], Red);
+            
+            x = s->x;
+            y = s->y;
+            width = data[0];
+            height = data[1];
+
+            if (width < 0) {
+                x += width;
+                width = -width;
+            }
+            
+            if (height < 0) {
+                y += height;
+                height = -height;
+            }
+
+            gdispDrawBox(x, y, width, height, Red);
         }
         break;
         

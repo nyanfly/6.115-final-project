@@ -15,6 +15,7 @@ void pushShape(struct Shape_t *shape);
 void popShape();
 struct Shape_t* peekShape();
 void drawShapes();
+void drawShapesFast();
 
 int main()
 {
@@ -133,9 +134,10 @@ int main()
         // redraw after event
         if (shouldRedraw) {
             gdispClear(White);  // fill to white
+            drawShapes();
         }
 
-        drawShapes();
+        drawShapesFast();
     }
 
     return 0;
@@ -166,5 +168,12 @@ void drawShapes() {
     unsigned i;
     for (i = 0; i < cadQueueSize; i++) {
         drawShape(GDISP, cadQueue[i]);
+    }
+}
+
+void drawShapesFast() {
+    unsigned i;
+    for (i = 0; i < cadQueueSize; i++) {
+        drawShapeFast(GDISP, cadQueue[i]);
     }
 }
