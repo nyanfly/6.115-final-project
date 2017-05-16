@@ -30,6 +30,7 @@ struct Shape_t {
 };
 
 void drawShape(GDisplay *d, struct Shape_t *s);
+void drawShapeFast(GDisplay *d, struct Shape_t *s);
 
 #endif  // SHAPE_H
 

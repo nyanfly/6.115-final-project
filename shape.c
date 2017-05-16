@@ -16,9 +16,53 @@
     // TODO is data always of coord_t?
     switch (s->type) {
         coord_t *data;
-        case RECTANGLE:;
-        data = s->data;
-        gdispFillArea(s->x, s->y, data[0], data[1], Red);
+        case RECTANGLE: {
+            coord_t x, y, width, height;
+
+            data = s->data;
+            
+            x = s->x;
+            y = s->y;
+            width = data[0];
+            height = data[1];
+
+            if (width < 0) {
+                x += width;
+                width = -width;
+            }
+            
+            if (height < 0) {
+                y += height;
+                height = -height;
+            }
+
+            gdispFillArea(x, y, width, height, Red);
+        }
+        break;
+        
+        case CIRCLE:
+       // gwinDrawCircle(gh, s->x, s->y, s->data[2]);
+        break;
+        
+     //   case POLYGON:
+       // gwinDrawBox(gh, s->data[0], s->data[1], s->data[2], s->data[3]);
+       // break;
+        
+        default:
+        break;
+    }
+}
+
+ void drawShapeFast(GDisplay *d, struct Shape_t *s) {
+    // TODO is data always of coord_t?
+    switch (s->type) {
+        coord_t *data;
+        case RECTANGLE: {
+            coord_t x, y, width, height;
+
+            data = s->data;
+            gdispFillArea(s->x, s->y, data[0], data[1], Red);
+        }
         break;
         
         case CIRCLE:

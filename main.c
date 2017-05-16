@@ -6,7 +6,7 @@
 
 //#define cadWidgetGCreate(so, pI) cadWidgetGCreate(GDISP, so, pI)    // helper alias
 
-#define MAX_SHAPES 10
+#define MAX_SHAPES 100
 
 static struct Shape_t* cadQueue[MAX_SHAPES];
 static unsigned cadQueueSize = 0;
@@ -117,12 +117,10 @@ int main()
                         if (mouseEvent->buttons == 128) break;  // init??
                         struct Shape_t *currentShape = peekShape();
                         data = shape->data;
-                        
-                        // just throw away negative values, because uGFX is too dumb to handle them
-                        if (mouseEvent->x - shape->x > 0 && mouseEvent->y - shape->y > 0) {
-                            data[0] = mouseEvent->x - shape->x;
-                            data[1] = mouseEvent->y - shape->y;
-                        }
+
+                        data[0] = mouseEvent->x - shape->x;
+                        data[1] = mouseEvent->y - shape->y;
+
                         break;
                 }
                 break;
